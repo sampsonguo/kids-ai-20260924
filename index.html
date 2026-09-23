@@ -123,6 +123,7 @@ h1.title{font-size:60px;line-height:1.2;font-weight:900;color:#26305B;margin:8px
 .poem .p-line{font-size:27px;font-weight:700;color:#5B4A1E;margin:6px 0}
 .poem .p-ai{margin-top:12px;font-size:27px;font-weight:900;color:#E11D48}
 .poem .p-right{margin-top:10px;display:inline-block;background:#D1FAE5;color:#047857;font-size:25px;font-weight:900;padding:6px 18px;border-radius:12px}
+.poem .p-ask{margin-top:12px;display:inline-block;background:#FFF1C9;color:#92600B;font-size:24px;font-weight:800;padding:8px 16px;border-radius:12px}
 
 /* ============ 翻牌游戏 ============ */
 .flip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:24px}
@@ -321,7 +322,7 @@ body{touch-action:manipulation}
 </section>
 
 <!-- 7 导航播报 -->
-<section class="slide s-p1 stepped" data-note="先看左图猜：这是汽车导航，它会说话！再点一次出右边讲解——蓝色箭头就是我们的车，快到学校啦，导航就会说“前方学校，请慢一点”。这个声音不是真人坐在手机里，是AI合成的！它还能变成孙悟空、蜡笔小新的声音带路。现场模仿一句导航语音，活跃气氛。（约2分钟）">
+<section class="slide s-p1" data-note="讲：看这张真实的汽车导航照片——蓝色箭头就是我们的车，正沿着路线往前开，快到学校啦，导航就会说“前方学校，请慢一点”。这个声音不是真人坐在手机里，是AI合成的！它还能变成孙悟空、蜡笔小新的声音带路。现场模仿一句导航语音，活跃气氛。（约2分钟）">
   <span class="kicker">会“说”的AI · ①</span>
   <h1 class="title">“前方学校，请慢一点～” 🚗🗣️</h1>
   <div class="two-col">
@@ -343,7 +344,6 @@ body{touch-action:manipulation}
       </div>
     </div>
   </div>
-  <div class="step-hint">🗣️ 是谁在说话呢？<br>👉 再点一下屏幕看看</div>
 </section>
 
 <!-- 8 AI聊天/智能音箱 -->
@@ -481,7 +481,7 @@ body{touch-action:manipulation}
 </section>
 
 <!-- 14 AI犯错：胡说八道 -->
-<section class="slide s-p2 stepped" data-note="先出左边考全班：问AI“《静夜思》是谁写的”，它会怎么答？再点一次出右边讲解：它可能一本正经地回答“是杜甫写的”，还会编出一大堆听起来很厉害的理由！可是我们全班都知道——是李白！AI说得越自信，越要小心，科学家叫它“AI幻觉”。所以AI说的话，一定要请大人、老师或书本帮忙检查。（约2分钟）">
+<section class="slide s-p2 stepped" data-note="先出左边考全班：问AI“《静夜思》是谁写的”，AI一本正经地回答“是杜甫写的”——小朋友们，它说得对不对呀？那是谁写的？请小朋友大声说出来（全班：李白！）。再点一次出右边：公布正确答案+“AI幻觉”讲解——AI说得越自信，越要小心。所以AI说的话，一定要请大人、老师或书本帮忙检查。（约2分钟）">
   <span class="kicker">AI也会犯错 · ②</span>
   <h1 class="title">一本正经地“胡说八道” 🙊</h1>
   <div class="two-col">
@@ -490,12 +490,13 @@ body{touch-action:manipulation}
         <div class="p-title">问AI：《静夜思》是谁写的？</div>
         <div class="p-line">床前明月光，疑是地上霜。</div>
         <div class="p-line">举头望明月，低头思故乡。</div>
-        <div class="p-ai">🤖 AI：是杜甫写的！ ❌</div>
-        <div class="p-right">正确答案：李白 ✅（全班都知道！）</div>
+        <div class="p-ai">🤖 AI：是杜甫写的！</div>
+        <div class="p-ask">🙋 它说得对不对？那是谁写的？</div>
       </div>
     </div>
     <div class="col-r">
       <div class="card pop">
+        <div class="p-right" style="margin:0 0 10px;font-size:26px;padding:8px 14px;line-height:1.35">✅ 正确答案：李白！<div style="font-size:19px;font-weight:800">AI答错了 ❌ —— 全班都答对啦！</div></div>
         <h3>AI的“白日梦”</h3>
         <ul>
           <li>答错了还不算，它还会编出<b>一大堆理由</b>，听起来可自信了</li>
@@ -506,11 +507,11 @@ body{touch-action:manipulation}
       </div>
     </div>
   </div>
-  <div class="step-hint">📜 AI会怎么回答呢？<br>👉 再点一下屏幕看看</div>
+  <div class="step-hint">📜 AI说得对不对？是谁写的？<br>👉 再点一下屏幕揭晓</div>
 </section>
 
 <!-- 15 创造力 -->
-<section class="slide s-p2 stepped" data-note="先出左图：这是一位小朋友画的村庄——有红房子、蓝房子、小河和小鱼。再点一次出右边讲解：AI画画是学了几百万张别人的画“拼”出来的，它会模仿，但不会第一个想到新点子。“会飞的草莓房子”这种奇怪又可爱的想法，只有小朋友能想到！请1-2个小朋友说说自己想象过的怪东西。（约2分钟）">
+<section class="slide s-p2" data-note="讲：看，这是一位小朋友画的村庄——有红房子、蓝房子、小河和小鱼。AI画画是学了几百万张别人的画“拼”出来的，它会模仿，但不会第一个想到新点子。“会飞的草莓房子”这种奇怪又可爱的想法，只有小朋友能想到！请1-2个小朋友说说自己想象过的怪东西。（约2分钟）">
   <span class="kicker">AI缺少的本领 · 创造力</span>
   <h1 class="title">新点子，只有你有！🎨✨</h1>
   <div class="two-col">
@@ -530,7 +531,6 @@ body{touch-action:manipulation}
       </div>
     </div>
   </div>
-  <div class="step-hint">🎨 AI能画出这样的画吗？<br>👉 再点一下屏幕看看</div>
 </section>
 
 <!-- 16 不能代替思考 -->
@@ -605,7 +605,7 @@ body{touch-action:manipulation}
 </section>
 
 <!-- 19 模拟大脑 -->
-<section class="slide s-p3 stepped" data-note="先看左边两张真实照片猜一猜：绿色发光的是大脑里的神经元（显微照片），这就是你脑袋里的“小开关”，有一千亿个，互相传消息；下面绿色的是电脑里的芯片。再点一次出右边讲解：科学家模仿大脑，用芯片造了好多“电子小开关”，连成一张大网，叫“神经网络”——像一张会思考的渔网。不展开数学，用手比划渔网即可。小互动：让全班张开五指当“渔网”，和同桌互相挥一挥，感受“消息在网里钻来钻去”。（约2分钟）">
+<section class="slide s-p3" data-note="讲：看两张真实照片——绿色发光的是大脑里的神经元（显微照片），这就是你脑袋里的“小开关”，有一千亿个，互相传消息；下面绿色的是电脑里的芯片。科学家模仿大脑，用芯片造了好多“电子小开关”，连成一张大网，叫“神经网络”——像一张会思考的渔网。不展开数学，用手比划渔网即可。小互动：让全班张开五指当“渔网”，和同桌互相挥一挥，感受“消息在网里钻来钻去”。（约2分钟）">
   <span class="kicker">AI的基本原理 · ①</span>
   <h1 class="title">AI在模仿你的大脑！🧠⚡</h1>
   <div class="two-col">
@@ -634,11 +634,10 @@ body{touch-action:manipulation}
       </div>
     </div>
   </div>
-  <div class="step-hint">🧠 AI的大脑长什么样？<br>👉 再点一下屏幕看看</div>
 </section>
 
 <!-- 20 怎么学习 -->
-<section class="slide s-p3 stepped" data-note="先看左边四张猫咪照片：站着的、趴着的、黑猫、花猫，长得都不一样。AI怎么学习？跟小朋友一样！再点一次出右边讲解：AI就是看了成千上万张这样的照片，先猜“这是猫吗”，猜错就纠正，练一万遍，越练越准。就像学骑车，摔倒了爬起来再练。让小朋友联想自己学拼音、学口算的过程。提问互动：如果给只学过猫的AI看一张老虎照片，它会猜成什么？（答案：很可能猜成猫！因为它只学过猫——AI学什么才会什么。）（约2分钟）">
+<section class="slide s-p3" data-note="讲：AI怎么学习？跟小朋友一样！看这四张猫咪照片——站着的、趴着的、黑猫、花猫，长得都不一样。AI就是看了成千上万张这样的照片，先猜“这是猫吗”，猜错就纠正，练一万遍，越练越准。就像学骑车，摔倒了爬起来再练。让小朋友联想自己学拼音、学口算的过程。讲完三步再提问互动：如果给只学过猫的AI看一张老虎照片，它会猜成什么？（答案：很可能猜成猫！因为它只学过猫——AI学什么才会什么。）（约2分钟）">
   <span class="kicker">AI的基本原理 · ②</span>
   <h1 class="title">AI学习，跟你一样！🐱📚</h1>
   <div class="two-col">
@@ -663,7 +662,6 @@ body{touch-action:manipulation}
       </div>
     </div>
   </div>
-  <div class="step-hint">🐱 AI是怎么学会认猫的？<br>👉 再点一下屏幕看看</div>
 </section>
 
 <!-- 21 AI里程碑+工业革命（合并页） -->
