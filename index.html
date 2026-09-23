@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>生活中的AI · 二年级AI科普小课堂</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#12172B}
+body{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC",sans-serif;-webkit-font-smoothing:antialiased;color:#2B3554}
+#deck{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center;border-radius:24px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.5);background:linear-gradient(135deg,#EAF3FF,#F7F0FF)}
+.slide{position:absolute;inset:0;padding:50px 64px 88px;display:none}
+.slide.active{display:block;animation:slideIn .45s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+@keyframes pop{0%{opacity:0;transform:scale(.6) translateY(20px)}70%{transform:scale(1.05) translateY(-4px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.slide.active .pop{animation:pop .55s both}
+.deco{position:absolute;opacity:.45;animation:floaty 6s ease-in-out infinite;pointer-events:none;z-index:0}
+.slide>*{position:relative;z-index:1}
+
+/* ============ 背景变体 ============ */
+.s-cover{background:linear-gradient(135deg,#5B7FFF 0%,#8B5CF6 55%,#D95FD0 100%);color:#fff}
+.s-p1{background:linear-gradient(160deg,#EAF4FF 0%,#F2FBFF 100%)}
+.s-p2{background:linear-gradient(160deg,#FFF4E8 0%,#FFF9F0 100%)}
+.s-p3{background:linear-gradient(160deg,#F2EDFF 0%,#F8F4FF 100%)}
+.s-end{background:linear-gradient(135deg,#0FB5A8 0%,#3B82F6 60%,#8B5CF6 100%);color:#fff}
+
+/* ============ 通用组件 ============ */
+.tag{display:inline-block;background:rgba(255,255,255,.92);color:#4C63D2;font-size:22px;font-weight:700;padding:8px 22px;border-radius:999px;box-shadow:0 4px 14px rgba(76,99,210,.18)}
+.s-end .tag{color:#0F766E}
+.kicker{font-size:24px;font-weight:800;letter-spacing:2px;color:#4C63D2;margin-bottom:10px}
+.s-p2 .kicker{color:#EA7B24}
+.s-p3 .kicker{color:#7C3AED}
+h1.title{font-size:60px;line-height:1.2;font-weight:900;color:#26305B;margin:8px 0 6px}
+.s-cover h1.title,.s-end h1.title{color:#fff}
+.sub{font-size:28px;color:#5B6B99;font-weight:600}
+.s-cover .sub,.s-end .sub{color:rgba(255,255,255,.92)}
+.emoji-hero{font-size:150px;line-height:1;filter:drop-shadow(0 12px 18px rgba(0,0,0,.18));animation:bob 4s ease-in-out infinite}
+.two-col{display:flex;gap:44px;align-items:center;margin-top:26px}
+.col-l{flex:0 0 440px;display:flex;align-items:center;justify-content:center}
+.col-r{flex:1}
+.card{background:#fff;border-radius:28px;padding:30px 36px;box-shadow:0 14px 34px rgba(63,84,150,.14);border-left:14px solid #4C7DFF}
+.s-p2 .card{border-left-color:#FB923C}
+.s-p3 .card{border-left-color:#8B5CF6}
+.card h3{font-size:36px;font-weight:900;color:#26305B;margin-bottom:12px}
+.card ul{list-style:none}
+.card li{font-size:27px;line-height:1.55;padding:8px 0 8px 40px;position:relative;color:#37427A}
+.card li::before{content:"";position:absolute;left:6px;top:22px;width:14px;height:14px;border-radius:50%;background:#4C7DFF}
+.s-p2 .card li::before{background:#FB923C}
+.s-p3 .card li::before{background:#8B5CF6}
+.card li b{color:#E1507A}
+.hint-pill{display:inline-block;margin-top:16px;background:#FFF1C9;color:#92600B;font-size:23px;font-weight:700;padding:10px 22px;border-radius:16px}
+.photo{border-radius:26px;box-shadow:0 16px 38px rgba(40,55,120,.25);object-fit:cover;width:440px;height:330px}
+.photo.tall{height:460px;width:auto;max-width:400px}
+.qbubble{display:inline-block;background:#fff;border:3px dashed #93A7F5;color:#3C53B0;font-size:27px;font-weight:800;padding:14px 28px;border-radius:22px;margin-top:18px}
+
+/* ============ 分步揭晓（先出左图，再出右侧答案） ============ */
+.stepped .col-r{opacity:0;transform:translateX(48px);transition:opacity .55s ease,transform .55s ease;pointer-events:none}
+.stepped.revealed .col-r{opacity:1;transform:none;pointer-events:auto}
+.step-hint{position:absolute;left:69%;top:53%;transform:translate(-50%,-50%);background:#fff;border:3px dashed #93A7F5;color:#3C53B0;font-size:25px;font-weight:800;padding:16px 28px;border-radius:22px;box-shadow:0 10px 26px rgba(63,84,150,.16);text-align:center;line-height:1.55;animation:hintPulse 1.6s ease-in-out infinite;z-index:2}
+.s-p2 .step-hint{border-color:#F6C08A;color:#B45309}
+.s-p3 .step-hint{border-color:#C4B5FD;color:#6D28D9}
+.stepped.revealed .step-hint{display:none}
+@keyframes hintPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
+
+/* ============ 蒲公英提问页 ============ */
+.qstage{position:relative;height:500px;display:flex;align-items:center;justify-content:center;margin-top:8px}
+.qstage img{height:480px;border-radius:30px;box-shadow:0 20px 46px rgba(40,55,120,.32);object-fit:cover}
+.qbanner{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:rgba(38,48,91,.94);color:#fff;padding:16px 48px;border-radius:26px;text-align:center;box-shadow:0 14px 32px rgba(0,0,0,.35);white-space:nowrap}
+.qbanner .qb-big{font-size:44px;font-weight:900;line-height:1.25}
+.qbanner .qb-small{font-size:22px;font-weight:700;color:#BFD0FF;margin-top:4px}
+
+/* ============ 章节页 ============ */
+.section-wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.station-num{font-size:30px;font-weight:900;color:#fff;background:linear-gradient(135deg,#4C7DFF,#8B5CF6);padding:10px 34px;border-radius:999px;box-shadow:0 10px 26px rgba(76,125,255,.35)}
+.s-p2 .station-num{background:linear-gradient(135deg,#FB923C,#F43F5E)}
+.s-p3 .station-num{background:linear-gradient(135deg,#8B5CF6,#EC4899)}
+.section-title{font-size:76px;font-weight:900;color:#26305B;margin:26px 0 12px}
+.section-sub{font-size:30px;color:#5B6B99;font-weight:600}
+.section-emojis{font-size:72px;margin-top:30px;letter-spacing:18px}
+
+/* ============ 封面 ============ */
+.cover-wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cover-title{font-size:96px;font-weight:900;letter-spacing:6px;margin:18px 0 10px;text-shadow:0 8px 30px rgba(0,0,0,.25)}
+.cover-sub{font-size:34px;font-weight:700;color:rgba(255,255,255,.95)}
+.cover-badge{margin-top:26px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.6);color:#fff;font-size:24px;font-weight:700;padding:12px 30px;border-radius:999px;backdrop-filter:blur(4px)}
+
+/* ============ 手机插图 ============ */
+.phone{width:300px;height:480px;background:#26305B;border-radius:44px;padding:16px;box-shadow:0 24px 50px rgba(38,48,91,.35);animation:bob 5s ease-in-out infinite}
+.phone-screen{width:100%;height:100%;background:linear-gradient(180deg,#DFF1FF,#F3FAFF);border-radius:30px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.phone-flower{font-size:120px;animation:floaty 4s ease-in-out infinite}
+.phone-answer{background:#fff;border-radius:16px;padding:10px 18px;font-size:24px;font-weight:800;color:#15803D;box-shadow:0 6px 16px rgba(0,0,0,.1)}
+
+/* ============ 猫咪照片墙 ============ */
+.catgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:440px}
+.catgrid img{width:100%;height:152px;object-fit:cover;border-radius:18px;box-shadow:0 10px 22px rgba(40,55,120,.2)}
+
+/* ============ 大脑vs芯片对比 ============ */
+.brainvs{display:flex;flex-direction:column;align-items:center;width:440px}
+.brainvs-card{width:440px;border-radius:22px;overflow:hidden;box-shadow:0 14px 30px rgba(40,55,120,.22);position:relative}
+.brainvs-card img{width:100%;height:172px;object-fit:cover;display:block}
+.brainvs-label{position:absolute;left:0;right:0;bottom:0;background:rgba(38,48,91,.85);color:#fff;font-size:23px;font-weight:800;padding:8px 14px;text-align:center}
+.brainvs-arrow{background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff;font-size:22px;font-weight:900;padding:6px 24px;border-radius:999px;margin:10px 0;box-shadow:0 8px 18px rgba(139,92,246,.35)}
+
+/* ============ 大脑健身房 ============ */
+.braingym{width:440px;height:330px;background:linear-gradient(135deg,#FFFFFF,#FFE9F0);border:4px dashed #FB7185;border-radius:30px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 16px 38px rgba(251,113,133,.2)}
+.braingym .brain{font-size:104px;line-height:1;animation:bob 3s ease-in-out infinite}
+.braingym .equip{font-size:50px;letter-spacing:8px}
+.braingym .sign{margin-top:8px;background:#FB7185;color:#fff;font-weight:900;font-size:25px;padding:8px 22px;border-radius:14px}
+.braingym .sign2{font-size:21px;color:#9F1239;font-weight:800;padding:0 20px;text-align:center}
+
+/* ============ 狗狗vs甜甜圈 ============ */
+.duo{display:flex;align-items:center;gap:12px}
+.duo img{width:195px;height:195px;object-fit:cover;border-radius:24px;box-shadow:0 14px 30px rgba(40,55,120,.25);background:#fff}
+.duo .vs{font-size:40px;font-weight:900;color:#F59E0B}
+.duo-cap{margin-top:12px;font-size:23px;font-weight:800;color:#92600B;text-align:center}
+
+/* ============ 静夜思卡片 ============ */
+.poem{width:440px;background:linear-gradient(180deg,#FFFDF5,#FFF6E0);border:4px solid #E8C97A;border-radius:24px;padding:22px 26px;box-shadow:0 16px 38px rgba(146,96,11,.18);text-align:center}
+.poem .p-title{font-size:32px;font-weight:900;color:#92600B}
+.poem .p-line{font-size:27px;font-weight:700;color:#5B4A1E;margin:6px 0}
+.poem .p-ai{margin-top:12px;font-size:27px;font-weight:900;color:#E11D48}
+.poem .p-right{margin-top:10px;display:inline-block;background:#D1FAE5;color:#047857;font-size:25px;font-weight:900;padding:6px 18px;border-radius:12px}
+
+/* ============ 翻牌游戏 ============ */
+.flip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:24px}
+.flipcard{height:196px;perspective:1200px;cursor:pointer}
+.fc-inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.1,.2,1);transform-style:preserve-3d}
+.flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;text-align:center;box-shadow:0 10px 24px rgba(63,84,150,.14)}
+.fc-front{background:#fff;border:4px solid #DCE6FF}
+.s-p2 .fc-front{border-color:#FFE3C2}
+.s-p3 .fc-front{border-color:#E9D5FF}
+.fc-emoji{font-size:56px;line-height:1}
+.fc-name{font-size:27px;font-weight:900;color:#26305B}
+.fc-ask{font-size:20px;color:#7B8AC0;font-weight:700}
+.fc-opts{display:flex;flex-direction:column;gap:4px;font-size:21px;font-weight:800;color:#3B4A8C;line-height:1.35}
+.fc-back{transform:rotateY(180deg);color:#fff;font-size:22px;line-height:1.4;font-weight:700}
+.fc-back .verdict{font-size:34px;font-weight:900}
+.fc-back.yes{background:linear-gradient(135deg,#34D399,#059669)}
+.fc-back.no{background:linear-gradient(135deg,#FB7185,#E11D48)}
+.fc-back.maybe{background:linear-gradient(135deg,#FBBF24,#D97706)}
+.quiz-tip{margin-top:18px;font-size:24px;color:#7B8AC0;font-weight:700}
+
+/* ============ 时间线 ============ */
+.tl{position:relative;margin-top:190px}
+.tl-line{position:absolute;left:30px;right:30px;top:-70px;height:10px;border-radius:6px;background:linear-gradient(90deg,#60A5FA,#A78BFA,#F472B6,#FBBF24,#34D399)}
+.tl-items{display:flex;justify-content:space-between}
+.tl-item{width:19.5%;text-align:center;position:relative}
+.tl-dot{position:absolute;top:-94px;left:50%;transform:translateX(-50%);width:48px;height:48px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 16px rgba(60,60,140,.2)}
+.tl-year{font-size:34px;font-weight:900;color:#5B21B6}
+.tl-card{background:#fff;border-radius:18px;padding:14px 10px;margin-top:10px;box-shadow:0 10px 24px rgba(63,84,150,.14);min-height:210px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.tl-card p{font-size:21px;line-height:1.45;color:#37427A;font-weight:700}
+.tl-card img{width:120px;height:90px;object-fit:cover;border-radius:12px}
+.rev-strip{display:flex;align-items:center;gap:8px;margin-top:16px}
+.rev-chip{flex:1;background:#fff;border-radius:14px;padding:8px 10px;display:flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(63,84,150,.12);font-size:18px;line-height:1.3;color:#37427A;font-weight:700}
+.rev-chip b{color:#5B21B6;font-size:19px}
+.rev-chip.hot{border:3px solid #A78BFA;background:#F3E8FF}
+.rev-chip.future{border:3px solid #34D399;background:#ECFDF5}
+.rev-emoji{font-size:30px;line-height:1}
+.rev-arrow{font-size:22px;font-weight:900;color:#A78BFA}
+.tl-cap{text-align:center;font-size:22px;font-weight:800;color:#7C3AED;margin-top:12px}
+.tl-mini{margin-top:130px}
+.tl-mini .tl-line{top:-56px;height:8px}
+.tl-mini .tl-dot{top:-74px;width:40px;height:40px;font-size:22px}
+.tl-mini .tl-year{font-size:30px}
+.tl-mini .tl-card{min-height:190px;padding:10px 8px;gap:6px}
+.tl-mini .tl-card img{width:100px;height:74px}
+.tl-mini .tl-card p{font-size:19px}
+
+/* ============ 视频页（本地视频直接播放） ============ */
+.video-shell{width:760px;height:428px;margin:14px auto 0;border-radius:26px;background:#0B1026;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 46px rgba(20,28,70,.4);overflow:hidden;position:relative}
+.video-shell video{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+.video-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#FB7185,#F59E0B);color:#fff;font-size:34px;font-weight:900;padding:26px 60px;border-radius:999px;border:0;cursor:pointer;box-shadow:0 14px 30px rgba(245,158,11,.45);font-family:inherit;transition:opacity .2s;z-index:3}
+.video-btn:hover{opacity:.9}
+.video-link{margin-top:10px;text-align:center;font-size:20px;color:#5B6B99;font-weight:700}
+
+/* ============ 互动畅想 ============ */
+.think-list{margin-top:26px;display:flex;flex-direction:column;gap:22px}
+.think-item{background:#fff;border-radius:24px;padding:24px 32px;font-size:32px;font-weight:800;color:#26305B;box-shadow:0 12px 28px rgba(63,84,150,.13);display:flex;align-items:center;gap:20px}
+.think-item .te{font-size:46px}
+
+/* ============ 底部UI ============ */
+#ui{position:absolute;left:0;right:0;bottom:0;height:64px;z-index:50;display:flex;align-items:center;padding:0 22px;gap:16px;pointer-events:none}
+#progress{position:absolute;left:0;right:0;bottom:0;height:7px;background:rgba(120,140,200,.18)}
+#bar{height:100%;width:0;background:linear-gradient(90deg,#4C7DFF,#8B5CF6,#EC4899);border-radius:0 4px 4px 0;transition:width .3s}
+#pager{font-size:18px;font-weight:800;color:#8A97C8;background:rgba(255,255,255,.85);padding:4px 14px;border-radius:999px;pointer-events:auto}
+#hint{font-size:16px;color:#9AA6CE;font-weight:600}
+.navbtns{margin-left:auto;display:flex;gap:10px;pointer-events:auto}
+.navbtns button{width:54px;height:54px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#4C63D2;font-size:30px;font-weight:900;cursor:pointer;box-shadow:0 6px 16px rgba(63,84,150,.2);font-family:inherit;-webkit-tap-highlight-color:transparent}
+.navbtns button:hover{background:#4C7DFF;color:#fff}
+/* ============ 触屏翻页（手机/平板） ============ */
+body{touch-action:manipulation}
+#touchNav{position:fixed;inset:0;z-index:200;pointer-events:none;display:none}
+#touchNav button{position:absolute;top:50%;transform:translateY(-50%);width:60px;height:60px;border-radius:50%;border:0;background:rgba(255,255,255,.88);color:#4C63D2;font-size:34px;font-weight:900;box-shadow:0 8px 22px rgba(0,0,0,.32);pointer-events:auto;font-family:inherit;-webkit-tap-highlight-color:transparent;cursor:pointer}
+#touchNav #tPrev{left:12px}
+#touchNav #tNext{right:12px}
+@media (pointer:coarse){#touchNav{display:block}}
+
+/* ============ 畅想互动·三问卡 ============ */
+.ask-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:40px}
+.ask-card{background:#fff;border-radius:28px;padding:34px 22px 28px;text-align:center;box-shadow:0 14px 34px rgba(124,58,237,.16);border-top:12px solid #8B5CF6;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ask-emoji{font-size:76px;line-height:1;animation:floaty 4s ease-in-out infinite}
+.ask-q{font-size:29px;font-weight:900;color:#26305B;line-height:1.4}
+.ask-q b{color:#E1507A}
+.ask-sub{font-size:21px;color:#7B8AC0;font-weight:700}
+
+/* ============ 总结·秘密卡 ============ */
+.secret-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:46px;width:100%;max-width:1150px}
+.secret-card{background:rgba(255,255,255,.97);border-radius:26px;padding:30px 20px 24px;text-align:center;box-shadow:0 16px 36px rgba(10,40,80,.28);position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
+.secret-num{position:absolute;top:-21px;left:50%;transform:translateX(-50%);width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#FFD166,#F59E0B);color:#fff;font-size:25px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(245,158,11,.45)}
+.secret-emoji{font-size:42px;margin-top:12px;letter-spacing:4px}
+.secret-title{font-size:28px;font-weight:900;color:#0F766E}
+.secret-sub{font-size:21px;font-weight:800;color:#5B6B99;line-height:1.5}
+
+#noteBox{position:absolute;left:22px;right:22px;bottom:70px;z-index:60;background:rgba(24,30,58,.94);color:#E8ECFF;border-radius:18px;padding:18px 26px;font-size:21px;line-height:1.55;display:none;box-shadow:0 16px 40px rgba(0,0,0,.4)}
+#noteBox b{color:#FFD166}
+</style>
+</head>
+<body>
+<div id="deck">
+
+<!-- 1 封面 -->
+<section class="slide s-cover" data-note="开场白：小朋友们好！今天我们要认识一位“看不见的朋友”——它叫AI（人工智能）。它藏在爸爸妈妈的手机里、家里的音箱里，甚至藏在今天的上学路上。我们一起去把它找出来！（约1分钟）">
+  <span class="deco" style="left:8%;top:12%;font-size:60px">☁️</span>
+  <span class="deco" style="right:10%;top:16%;font-size:52px;animation-delay:1s">✨</span>
+  <span class="deco" style="left:14%;bottom:18%;font-size:56px;animation-delay:2s">🎈</span>
+  <span class="deco" style="right:12%;bottom:22%;font-size:60px;animation-delay:.5s">🌈</span>
+  <div class="cover-wrap">
+    <div class="emoji-hero pop">🤖</div>
+    <div class="cover-title pop" style="animation-delay:.15s">生活中的AI</div>
+    <div class="cover-sub pop" style="animation-delay:.3s">和二年级小朋友一起，寻找藏在我们身边的AI朋友</div>
+    <div class="cover-badge pop" style="animation-delay:.45s">分享人：郭仕万爸爸 ｜ 二(3)班 ｜ 2026年9月24日</div>
+    <div class="cover-badge pop" style="animation-delay:.6s;margin-top:14px;font-size:20px;padding:8px 24px">AI科普小课堂 · 40分钟 · 二年级</div>
+  </div>
+</section>
+
+<!-- 2 寻宝地图 -->
+<section class="slide s-p1" data-note="热场提问：你在生活中，哪些地方已经见过AI了？请2-3个小朋友回答。（提示：爸爸妈妈刷脸解锁手机？路口听到导航说话？）然后介绍今天的“闯关地图”：三站+一个宝藏。（约2分钟）">
+  <span class="tag">出发前的热热身</span>
+  <h1 class="title">AI寻宝之旅，出发！🗺️</h1>
+  <div class="qbubble pop">🙋 先来想一想：你在生活中，哪些地方已经见过AI了？</div>
+  <div class="flip-grid" style="margin-top:26px;grid-template-columns:repeat(2,1fr)">
+    <div class="think-item pop" style="animation-delay:.1s"><span class="te">🔍</span><div>第一站：AI在哪里？<div style="font-size:22px;color:#7B8AC0;font-weight:700">找出身边的AI小超人</div></div></div>
+    <div class="think-item pop" style="animation-delay:.2s"><span class="te">🙅</span><div>第二站：AI不会做什么？<div style="font-size:22px;color:#7B8AC0;font-weight:700">AI也会闹笑话哦</div></div></div>
+    <div class="think-item pop" style="animation-delay:.3s"><span class="te">🧠</span><div>第三站：AI怎么变聪明？<div style="font-size:22px;color:#7B8AC0;font-weight:700">偷偷看一眼AI的大脑</div></div></div>
+    <div class="think-item pop" style="animation-delay:.4s;border:3px solid #FFD166"><span class="te">🏆</span><div>宝藏：未来的机器人<div style="font-size:22px;color:#92600B;font-weight:700">下一个十年，等你来创造</div></div></div>
+  </div>
+</section>
+
+<!-- 3 章节页：第一站 -->
+<section class="slide s-p1" data-note="过渡：先出发去第一站。生活中有四位AI“小超人”：会看的、会听会说的、会玩的、会猜你喜欢的。（约半分钟）">
+  <div class="section-wrap">
+    <div class="station-num pop">第一站</div>
+    <div class="section-title pop" style="animation-delay:.15s">AI在哪里？🔍</div>
+    <div class="section-sub pop" style="animation-delay:.25s">找一找藏在手机、家里和马路上的四位AI小超人</div>
+    <div class="section-emojis pop" style="animation-delay:.4s">📱 😊 🗣️ 🤖 ❤️</div>
+  </div>
+</section>
+
+<!-- 4 蒲公英提问页（先问不答） -->
+<section class="slide s-p1" data-note="提问页（先别急着公布答案！）：指着大屏幕问——路边这朵小黄花，是什么呀？请3-4个小朋友大胆猜，不管猜对猜错都表扬。然后说：大家都猜得很认真！我们拿出手机拍一下，看看AI怎么回答。翻到下一页。（约1分钟）">
+  <span class="tag">🙋 猜一猜</span>
+  <div class="qstage pop">
+    <img src="assets/dandelion.jpg" alt="路边盛开的小黄花">
+    <div class="qbanner">
+      <div class="qb-big">🤔 这是什么呢？</div>
+      <div class="qb-small">先想一想、猜一猜 —— 再点一下屏幕，看看AI的回答</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 拍照识图（先出左边手机，再出右边讲解） -->
+<section class="slide s-p1 stepped" data-note="讲：先出左边手机——看，拍一张照片，AI告诉我们：这是蒲公英！再点一次屏幕出右边讲解。还能拍照翻译英文路牌、认出小狗的品种。提问：谁用手机拍过花草/动物识别名字？（约2分钟）">
+  <span class="kicker">会“看”的AI · ①</span>
+  <h1 class="title">拍一拍，就知道！📷🌸</h1>
+  <div class="two-col">
+    <div class="col-l">
+      <div class="phone pop"><div class="phone-screen" style="gap:18px">
+        <img src="assets/dandelion.jpg" alt="蒲公英" style="width:100%;border-radius:18px;box-shadow:0 8px 18px rgba(0,0,0,.15)">
+        <div class="phone-answer">🔍 这是：蒲公英！</div>
+        <div style="font-size:32px">📸 拍一下就知道</div>
+      </div></div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>拍照识图</h3>
+        <ul>
+          <li>公园里看到不认识的小花？<b>拍一下</b>，AI马上告诉你名字</li>
+          <li>还能<b>拍照翻译</b>英文路牌，出国旅游不迷路</li>
+          <li>小狗是什么品种？鸟儿叫什么名字？拍一拍就知道</li>
+        </ul>
+        <div class="hint-pill">💡 AI看过几百万张照片，才练出这双“火眼金睛”</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🤖 AI的答案是什么呢？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 6 人脸解锁 -->
+<section class="slide s-p1 stepped" data-note="先出左图提问：看一眼手机为什么就开了？再点一次出右边讲解：AI记住了脸上的“密码”：两只眼睛隔多远、鼻子有多高、脸是什么形状。照片里人很多，AI也能一张张脸都找出来。小秘密：长得很像的双胞胎，有时候能骗过它！（约2分钟）">
+  <span class="kicker">会“看”的AI · ②</span>
+  <h1 class="title">看一眼，就开门！😊🔓</h1>
+  <div class="two-col">
+    <div class="col-l"><img class="photo pop" src="assets/face_recognition.jpg" alt="人脸识别演示"></div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>人脸解锁</h3>
+        <ul>
+          <li>AI在你脸上找<b>“密码”</b>：眼睛隔多远、鼻子有多高、脸蛋什么形状</li>
+          <li>人再多，它也能把<b>一张张脸都找出来</b>（看左图的小方框）</li>
+          <li>超市刷脸付款、小区刷脸开门，都是它在工作</li>
+        </ul>
+        <div class="hint-pill">🤫 小秘密：长得超像的双胞胎，有时候能骗过它！</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🤔 手机怎么认出是你的？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 7 导航播报 -->
+<section class="slide s-p1 stepped" data-note="先看左图猜：这是汽车导航，它会说话！再点一次出右边讲解——蓝色箭头就是我们的车，快到学校啦，导航就会说“前方学校，请慢一点”。这个声音不是真人坐在手机里，是AI合成的！它还能变成孙悟空、蜡笔小新的声音带路。现场模仿一句导航语音，活跃气氛。（约2分钟）">
+  <span class="kicker">会“说”的AI · ①</span>
+  <h1 class="title">“前方学校，请慢一点～” 🚗🗣️</h1>
+  <div class="two-col">
+    <div class="col-l">
+      <div class="pop" style="position:relative;width:440px;height:330px">
+        <img class="photo" src="assets/navigation.jpg" alt="真实的汽车导航画面">
+        <div style="position:absolute;left:14px;top:12px;background:#26305B;color:#fff;font-size:20px;font-weight:bold;padding:12px 20px;border-radius:16px;box-shadow:0 8px 18px rgba(0,0,0,.35)">🗣️ 前方学校，请慢一点～</div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>AI导航播报</h3>
+        <ul>
+          <li>导航里的声音，不是真人躲在手机里说话</li>
+          <li>是<b>AI合成的声音</b>：把文字变成好听的人声</li>
+          <li>它还能变成<b>孙悟空、蜡笔小新</b>的声音给你带路！</li>
+        </ul>
+        <div class="hint-pill">🧭 它还会看路况：哪里堵车，就帮你换一条路</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🗣️ 是谁在说话呢？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 8 AI聊天/智能音箱 -->
+<section class="slide s-p1 stepped" data-note="先出左图问：家里有小爱同学/天猫精灵/小度的举手！“小爱同学，明天会下雨吗？”它怎么做到的？再点一次出右边三步：小耳朵听清→读过超多书的小脑袋想明白→小嘴巴说出来。可以让小朋友现场想一个问题，课后回去问它。（约2分钟）">
+  <span class="kicker">会“听”会“想”的AI · ②</span>
+  <h1 class="title">“小爱同学，明天会下雨吗？” 🎙️🤖</h1>
+  <div class="two-col">
+    <div class="col-l"><img class="photo pop" src="assets/xiaoai_speaker.png" alt="小米AI音箱（小爱同学）" style="height:400px;width:auto;max-width:400px"></div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>会聊天的AI</h3>
+        <ul>
+          <li>👂 第一步：<b>听清</b>——把你说的话变成文字</li>
+          <li>🧠 第二步：<b>想明白</b>——它“读过”超级多的书，知道怎么回答</li>
+          <li>🗣️ 第三步：<b>说出来</b>——用好听的声音回答你</li>
+        </ul>
+        <div class="hint-pill">💬 DeepSeek、豆包、Kimi、ChatGPT，都是会聊天的AI</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🎙️ 它是怎么做到的？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 9 元萝卜下棋机器人 -->
+<section class="slide s-p1 stepped" data-note="先出左图问：这个机器人在做什么呀？再点一次出右边讲解：这位是“元萝卜”，一位会下棋的机器人！它有眼睛（摄像头）看清棋盘，有AI大脑飞快想办法，还有小手臂自己拿棋、摆棋。象棋、围棋都会，还能当你的小老师。下棋是聪明的体育运动，AI当陪练，越下越聪明。它还赢过人类的世界冠军——第三站讲这个故事。（约2分钟）">
+  <span class="kicker">会“玩”的AI</span>
+  <h1 class="title">会下棋的机器人——元萝卜 🤖♟️</h1>
+  <div class="two-col">
+    <div class="col-l"><img class="photo pop" src="assets/yuanluobo4.jpg" alt="元萝卜下棋机器人陪小朋友下象棋"></div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>AI下棋高手</h3>
+        <ul>
+          <li>👁️ 它有<b>眼睛</b>：看清棋盘上的每个棋子</li>
+          <li>🧠 它有<b>AI大脑</b>：飞快地想办法</li>
+          <li>🦾 它有<b>小手臂</b>：自己拿棋、摆棋</li>
+          <li>象棋、围棋都会下，还能<b>当你的小老师</b>！</li>
+        </ul>
+        <div class="hint-pill">🏆 AI还赢过下棋的世界冠军！先保密，第三站讲～</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">♟️ 它为什么这么厉害？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 10 推荐AI -->
+<section class="slide s-p1 stepped" data-note="先出左图问：刷视频时，为什么推给你的都是你爱看的？再点一次出右边讲解：因为你点的每个赞、看的每个视频，AI都默默记住，然后猜你还喜欢什么。广告也是这样找到你的。小提醒：视频再好看，也不能一直刷，要保护眼睛、控制时间！（约2分钟）">
+  <span class="kicker">会“猜”的AI</span>
+  <h1 class="title">它怎么知道我喜欢恐龙？📱❤️</h1>
+  <div class="two-col">
+    <div class="col-l" style="flex-direction:column;gap:6px">
+      <div class="emoji-hero pop">🦕</div>
+      <div style="font-size:56px" class="pop">👍➡️🤖➡️📺</div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>个性化推荐</h3>
+        <ul>
+          <li>你点的每个<b>赞</b>、看的每个视频，AI都悄悄记在小本本上</li>
+          <li>然后它猜：“这个小朋友喜欢恐龙，<b>再推一个</b>恐龙视频！”</li>
+          <li>购物网站的广告，也是这样找到你的</li>
+        </ul>
+        <div class="hint-pill">⏰ 小提醒：视频再好看也要控制时间，保护好眼睛！</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🦕 AI是怎么猜到的？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 11 互动1：AI猜猜猜 -->
+<section class="slide s-p1" data-note="小游戏①：逐个点名，先让小朋友举手判断“是不是AI”，再点击卡片揭晓答案。计算器最容易答错——要讲清楚：算得快≠聪明，会自己学习的才是AI。约4分钟。">
+  <span class="tag">🎯 小游戏时间 · ①</span>
+  <h1 class="title" style="font-size:52px">哪些是AI，哪些不是？</h1>
+  <div class="flip-grid">
+    <div class="flipcard pop"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">💡</div><div class="fc-name">电灯</div><div class="fc-ask">是AI吗？点我揭晓</div></div>
+      <div class="fc-back no"><div class="verdict">❌ 不是AI</div>你按开关它就亮，只会听话，<b>不会自己学习</b></div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.08s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">📺</div><div class="fc-name">电视遥控器</div><div class="fc-ask">是AI吗？点我揭晓</div></div>
+      <div class="fc-back no"><div class="verdict">❌ 不是AI</div>它只是个“传话筒”，把按键消息传给电视</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.16s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">😊</div><div class="fc-name">刷脸开门</div><div class="fc-ask">是AI吗？点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ 是AI！</div>它会“看”：认出你的脸才开门</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.24s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">🧹</div><div class="fc-name">扫地机器人</div><div class="fc-ask">是AI吗？点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ 是AI！</div>它会自己认路、躲开桌腿和沙发</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.32s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">🧮</div><div class="fc-name">计算器</div><div class="fc-ask">是AI吗？点我揭晓</div></div>
+      <div class="fc-back no"><div class="verdict">❌ 不是AI</div>算数超快，但<b>算得快≠聪明</b>，它不会学习新本领</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.4s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">🗣️</div><div class="fc-name">智能音箱</div><div class="fc-ask">是AI吗？点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ 是AI！</div>它会听、会想、会说，还会越用越聪明</div>
+    </div></div>
+  </div>
+  <div class="quiz-tip">💡 小秘密：会不会<b style="color:#E1507A">自己学习</b>，是判断AI的关键！</div>
+</section>
+
+<!-- 12 章节页：第二站 -->
+<section class="slide s-p2" data-note="过渡：AI这么厉害，是不是什么都会？才不是！它也会闹笑话，也有做不到的事。（约半分钟）">
+  <div class="section-wrap">
+    <div class="station-num pop">第二站</div>
+    <div class="section-title pop" style="animation-delay:.15s">AI不是万能的 🙅</div>
+    <div class="section-sub pop" style="animation-delay:.25s">AI也会闹笑话，也有做不到的事</div>
+    <div class="section-emojis pop" style="animation-delay:.4s">🐱 ❓ 🎨 🧠</div>
+  </div>
+</section>
+
+<!-- 13 AI犯错：狗狗还是松饼 -->
+<section class="slide s-p2 stepped" data-note="先出左图让小朋友找：这张图里混着吉娃娃狗狗和蓝莓松饼，你能都找出来吗？连我们都要看半天。再点一次出右边讲解：AI只看“样子”，更容易搞混——它还真把橘猫的背影认成过面包。因为它没有像人一样真正“看懂”。所以AI的答案要打个问号。（约2分钟）">
+  <span class="kicker">AI也会犯错 · ①</span>
+  <h1 class="title">狗狗？还是松饼？🐕🧁</h1>
+  <div class="two-col">
+    <div class="col-l" style="flex-direction:column;gap:2px">
+      <img class="photo pop" src="assets/chihuahua_muffin_crop.jpg" alt="吉娃娃还是蓝莓松饼" style="height:396px;width:auto;max-width:440px">
+      <div class="duo-cap pop">图里混着狗狗和松饼——<br>你要看半天，AI也会看花眼！</div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>犯糊涂的AI</h3>
+        <ul>
+          <li>狗狗和松饼长得太像，AI分不清<b>谁是谁</b>！</li>
+          <li>它还把橘猫的背影认成过<b>面包</b>！</li>
+          <li>因为AI只是照着照片“对样子”，没有像人一样真正<b>看懂</b></li>
+        </ul>
+        <div class="hint-pill">👀 所以，AI的答案要打个问号，不能全信哦</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🐕 你找到了几只狗狗？<br>👉 再点一下，看AI闹笑话</div>
+</section>
+
+<!-- 14 AI犯错：胡说八道 -->
+<section class="slide s-p2 stepped" data-note="先出左边考全班：问AI“《静夜思》是谁写的”，它会怎么答？再点一次出右边讲解：它可能一本正经地回答“是杜甫写的”，还会编出一大堆听起来很厉害的理由！可是我们全班都知道——是李白！AI说得越自信，越要小心，科学家叫它“AI幻觉”。所以AI说的话，一定要请大人、老师或书本帮忙检查。（约2分钟）">
+  <span class="kicker">AI也会犯错 · ②</span>
+  <h1 class="title">一本正经地“胡说八道” 🙊</h1>
+  <div class="two-col">
+    <div class="col-l">
+      <div class="poem pop">
+        <div class="p-title">问AI：《静夜思》是谁写的？</div>
+        <div class="p-line">床前明月光，疑是地上霜。</div>
+        <div class="p-line">举头望明月，低头思故乡。</div>
+        <div class="p-ai">🤖 AI：是杜甫写的！ ❌</div>
+        <div class="p-right">正确答案：李白 ✅（全班都知道！）</div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>AI的“白日梦”</h3>
+        <ul>
+          <li>答错了还不算，它还会编出<b>一大堆理由</b>，听起来可自信了</li>
+          <li>说得越自信，越要小心——科学家叫它<b>“AI幻觉”</b></li>
+          <li>它不是故意骗人，它只是<b>没有真正学会</b></li>
+        </ul>
+        <div class="hint-pill">🔍 记住：AI说的话，要请大人或书本帮忙<b>检查</b>！</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">📜 AI会怎么回答呢？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 15 创造力 -->
+<section class="slide s-p2 stepped" data-note="先出左图：这是一位小朋友画的村庄——有红房子、蓝房子、小河和小鱼。再点一次出右边讲解：AI画画是学了几百万张别人的画“拼”出来的，它会模仿，但不会第一个想到新点子。“会飞的草莓房子”这种奇怪又可爱的想法，只有小朋友能想到！请1-2个小朋友说说自己想象过的怪东西。（约2分钟）">
+  <span class="kicker">AI缺少的本领 · 创造力</span>
+  <h1 class="title">新点子，只有你有！🎨✨</h1>
+  <div class="two-col">
+    <div class="col-l" style="flex-direction:column;gap:10px">
+      <img class="photo pop" src="assets/kid_drawing.jpg" alt="小朋友画的村庄">
+      <div class="duo-cap pop" style="color:#37427A">这是一位小朋友画的村庄——<br>这么可爱的画，AI可想不出来！</div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>AI会模仿，不会“第一个想到”</h3>
+        <ul>
+          <li>AI画画，是学了几百万张<b>别人的画</b>拼出来的</li>
+          <li>它不会第一个想到“会飞的草莓房子”——<b>你会！</b></li>
+          <li>想象力和创造力，是人类的<b>超能力</b></li>
+        </ul>
+        <div class="hint-pill">🙋 说一说：你想象过什么奇怪的东西？AI肯定没见过！</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🎨 AI能画出这样的画吗？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 16 不能代替思考 -->
+<section class="slide s-p2 stepped" data-note="先出左边“大脑健身房”问：大脑不练会怎样？再点一次出右边讲解：大脑和肌肉一样，越练越强壮——天天自己写作业、动脑筋，它就越来越聪明；总让AI代劳，它就会“变懒”。AI像自行车：帮你更快，但路要自己走。还有安慰朋友、照顾家人，只有真心的你能做好。（约2分钟）">
+  <span class="kicker">AI做不到的事 · 最重要的一件</span>
+  <h1 class="title">作业要自己写，朋友要真心交 ✍️❤️</h1>
+  <div class="two-col">
+    <div class="col-l">
+      <div class="braingym pop">
+        <div class="brain">🧠</div>
+        <div class="equip">🏋️ 💪 🏃</div>
+        <div class="sign">大脑健身房</div>
+        <div class="sign2">天天练习，越练越聪明；<br>总让AI代劳，它就“变懒”啦！</div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>AI是工具，不是替身</h3>
+        <ul>
+          <li>AI像<b>自行车</b>：帮你更快，但路要自己走</li>
+          <li>用AI抄作业 ＝ 骗自己的大脑，大脑会<b>“变懒”</b>！</li>
+          <li>安慰朋友、照顾家人——只有<b>真心的你</b>能做好</li>
+        </ul>
+        <div class="hint-pill">🌟 记住：让AI帮你学，不是替你学</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🧠 大脑不练会怎样？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 17 互动2：找AI帮忙好吗 -->
+<section class="slide s-p2" data-note="小游戏②：这些事找AI帮忙好不好？逐个点名再翻牌。重点讲“写作文”：可以请AI给点子、但字要自己写——这就是“AI辅助≠AI代替”。约3分钟。">
+  <span class="tag">🎯 小游戏时间 · ②</span>
+  <h1 class="title" style="font-size:52px">这些事，找AI帮忙好吗？</h1>
+  <div class="flip-grid">
+    <div class="flipcard pop"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">📚</div><div class="fc-name">查资料：恐龙吃什么</div><div class="fc-ask">找AI帮忙？点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ 好帮手！</div>查得快，但答案要再核对一下</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.08s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">📝</div><div class="fc-name">写作文</div><div class="fc-ask">找AI帮忙？点我揭晓</div></div>
+      <div class="fc-back no"><div class="verdict">❌ 自己写！</div>可以请AI给点子，但字要自己写才进步</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.16s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">🎁</div><div class="fc-name">给妈妈挑生日礼物</div><div class="fc-ask">找AI帮忙？点我揭晓</div></div>
+      <div class="fc-back maybe"><div class="verdict">🤝 一起想</div>AI出主意，你来做决定，心意最重要</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.24s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">😢</div><div class="fc-name">安慰难过的同学</div><div class="fc-ask">找AI帮忙？点我揭晓</div></div>
+      <div class="fc-back no"><div class="verdict">❌ 人来！</div>一个真心的抱抱，AI给不了</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.32s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">🧮</div><div class="fc-name">检查口算作业</div><div class="fc-ask">找AI帮忙？点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ 好帮手！</div>检查错题很在行，但做题要靠你自己</div>
+    </div></div>
+    <div class="flipcard pop" style="animation-delay:.4s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji">🍽️</div><div class="fc-name">决定今晚吃什么</div><div class="fc-ask">找AI帮忙？点我揭晓</div></div>
+      <div class="fc-back maybe"><div class="verdict">🤝 参考一下</div>AI建议菜单，全家一起投票决定</div>
+    </div></div>
+  </div>
+  <div class="quiz-tip">💡 口诀：<b style="color:#E1507A">AI辅助可以，AI代替不行！</b></div>
+</section>
+
+<!-- 18 章节页：第三站 -->
+<section class="slide s-p3" data-note="过渡：AI为什么又聪明又会犯错？它的“大脑”到底长什么样？去第三站看看。（约半分钟）">
+  <div class="section-wrap">
+    <div class="station-num pop">第三站</div>
+    <div class="section-title pop" style="animation-delay:.15s">AI怎么变聪明的？🧠</div>
+    <div class="section-sub pop" style="animation-delay:.25s">偷偷看一眼AI的“大脑”</div>
+    <div class="section-emojis pop" style="animation-delay:.4s">🧠 ⚡ 🐱 📖</div>
+  </div>
+</section>
+
+<!-- 19 模拟大脑 -->
+<section class="slide s-p3 stepped" data-note="先看左边两张真实照片猜一猜：绿色发光的是大脑里的神经元（显微照片），这就是你脑袋里的“小开关”，有一千亿个，互相传消息；下面绿色的是电脑里的芯片。再点一次出右边讲解：科学家模仿大脑，用芯片造了好多“电子小开关”，连成一张大网，叫“神经网络”——像一张会思考的渔网。不展开数学，用手比划渔网即可。小互动：让全班张开五指当“渔网”，和同桌互相挥一挥，感受“消息在网里钻来钻去”。（约2分钟）">
+  <span class="kicker">AI的基本原理 · ①</span>
+  <h1 class="title">AI在模仿你的大脑！🧠⚡</h1>
+  <div class="two-col">
+    <div class="col-l">
+      <div class="brainvs pop">
+        <div class="brainvs-card">
+          <img src="assets/neuron2.jpg" alt="大脑里的神经元（真实显微照片）">
+          <div class="brainvs-label">🧠 你的大脑：一千亿个“小开关”</div>
+        </div>
+        <div class="brainvs-arrow">⬇️ 科学家模仿它！</div>
+        <div class="brainvs-card">
+          <img src="assets/chip2.jpg" alt="电脑芯片（真实照片）">
+          <div class="brainvs-label">💻 AI的大脑：“电子小开关”</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>电子小开关</h3>
+        <ul>
+          <li>你的脑袋里有一千亿个<b>“小开关”</b>（神经元），互相传消息</li>
+          <li>科学家用电脑造了好多<b>“电子小开关”</b>，连成一张大网</li>
+          <li>这张网叫<b>“神经网络”</b>——AI的大脑就是它</li>
+        </ul>
+        <div class="hint-pill">🐟 像一张会思考的渔网：消息钻来钻去，答案就出来啦</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🧠 AI的大脑长什么样？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 20 怎么学习 -->
+<section class="slide s-p3 stepped" data-note="先看左边四张猫咪照片：站着的、趴着的、黑猫、花猫，长得都不一样。AI怎么学习？跟小朋友一样！再点一次出右边讲解：AI就是看了成千上万张这样的照片，先猜“这是猫吗”，猜错就纠正，练一万遍，越练越准。就像学骑车，摔倒了爬起来再练。让小朋友联想自己学拼音、学口算的过程。提问互动：如果给只学过猫的AI看一张老虎照片，它会猜成什么？（答案：很可能猜成猫！因为它只学过猫——AI学什么才会什么。）（约2分钟）">
+  <span class="kicker">AI的基本原理 · ②</span>
+  <h1 class="title">AI学习，跟你一样！🐱📚</h1>
+  <div class="two-col">
+    <div class="col-l" style="flex-direction:column;gap:14px">
+      <div class="catgrid pop">
+        <img src="assets/cat1.jpg" alt="花猫">
+        <img src="assets/cat2.jpg" alt="睡着的小猫">
+        <img src="assets/cat3.jpg" alt="黑猫">
+        <img src="assets/cat4.jpg" alt="猫咪正脸">
+      </div>
+      <div class="qbubble pop" style="margin-top:0;font-size:24px;animation-delay:.3s">🙋 考一考：给只学过猫的AI看一张老虎照片，它会猜成什么？</div>
+    </div>
+    <div class="col-r">
+      <div class="card pop">
+        <h3>以“学认猫”为例</h3>
+        <ul>
+          <li>📸 第1步：<b>看！</b>给AI看一万张猫咪照片</li>
+          <li>✏️ 第2步：<b>猜！</b>“这是猫吗？”猜错就纠正</li>
+          <li>🚀 第3步：<b>练！</b>练一万遍，越练越准</li>
+        </ul>
+        <div class="hint-pill">🚲 就像你学骑车：摔倒了，爬起来，再练一次！</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-hint">🐱 AI是怎么学会认猫的？<br>👉 再点一下屏幕看看</div>
+</section>
+
+<!-- 21 AI里程碑+工业革命（合并页） -->
+<section class="slide s-p3" data-note="合并页（原里程碑+工业革命）：先抢答“AI哪一年赢的围棋世界冠军？”请2-3个小朋友猜，再公布2016——围棋超级难，大家原以为还要100年！讲下面AI的五个大日子：1956科学家取名“人工智能”→1997“深蓝”赢国际象棋→2016 AlphaGo 4:1赢了李世石→2022 ChatGPT人人会聊→2025宇树机器人上春晚+DeepSeek惊艳世界。再指顶部条讲大故事：蒸汽机帮干力气活→电带来电灯电话汽车→互联网连成一张网→现在AI革命。最后提问“下一站，AI会住进谁的身体里？”（机器人！科学家叫“具身智能”），引出后面的视频。约3.5分钟；时间紧就只讲五个大日子，顶部条一带而过。">
+  <span class="kicker">更大的故事 · 科技革命</span>
+  <h1 class="title" style="font-size:46px">从蒸汽机到AI，一站接一站 🚀</h1>
+  <div class="rev-strip">
+    <div class="rev-chip"><span class="rev-emoji">🚂</span><div><b>200多年前</b><br>蒸汽机干力气活</div></div>
+    <div class="rev-arrow">→</div>
+    <div class="rev-chip"><span class="rev-emoji">💡</span><div><b>100多年前</b><br>电灯·电话·汽车</div></div>
+    <div class="rev-arrow">→</div>
+    <div class="rev-chip"><span class="rev-emoji">💻</span><div><b>30多年前</b><br>互联网连成网</div></div>
+    <div class="rev-arrow">→</div>
+    <div class="rev-chip hot"><span class="rev-emoji">🤖</span><div><b>现在</b><br>AI自己“学习”</div></div>
+    <div class="rev-arrow">→</div>
+    <div class="rev-chip future"><span class="rev-emoji">🦾</span><div><b>下一个十年</b><br>AI住进机器人？</div></div>
+  </div>
+  <div class="tl-cap">⬇ AI的五个大日子 📅</div>
+  <div class="tl tl-mini">
+    <div class="tl-line"></div>
+    <div class="tl-items">
+      <div class="tl-item pop">
+        <div class="tl-dot" style="border:5px solid #60A5FA">🐣</div>
+        <div class="tl-year">1956</div>
+        <div class="tl-card"><img src="assets/john_mccarthy.jpg" alt="麦卡锡爷爷"><p>AI出生啦！<br>科学家给它取名<br>“人工智能”</p></div>
+      </div>
+      <div class="tl-item pop" style="animation-delay:.1s">
+        <div class="tl-dot" style="border:5px solid #A78BFA">♟️</div>
+        <div class="tl-year">1997</div>
+        <div class="tl-card"><img src="assets/deep_blue.jpg" alt="深蓝计算机"><p>“深蓝”赢了<br>国际象棋<br>世界冠军</p></div>
+      </div>
+      <div class="tl-item pop" style="animation-delay:.2s">
+        <div class="tl-dot" style="border:5px solid #F472B6">⚫</div>
+        <div class="tl-year">2016</div>
+        <div class="tl-card"><img src="assets/lee_sedol.jpg" alt="李世石"><p>AlphaGo 4:1<br>赢了围棋冠军<br>李世石</p></div>
+      </div>
+      <div class="tl-item pop" style="animation-delay:.3s">
+        <div class="tl-dot" style="border:5px solid #FBBF24">💬</div>
+        <div class="tl-year">2022</div>
+        <div class="tl-card"><img src="assets/chatgpt_logo.jpg" alt="ChatGPT"><p>ChatGPT来了<br>人人都会<br>和AI聊天</p></div>
+      </div>
+      <div class="tl-item pop" style="animation-delay:.4s">
+        <div class="tl-dot" style="border:5px solid #34D399">🇨🇳</div>
+        <div class="tl-year">2025</div>
+        <div class="tl-card"><img src="assets/unitree_g1.jpg" alt="宇树机器人" style="object-position:center 20%"><p>宇树机器人<br>上春晚扭秧歌<br>DeepSeek惊艳世界</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 22 互动3：快问快答·谁是AI小博士 -->
+<section class="slide s-p3" data-note="小游戏③·快问快答（选择题）：每题先念题目和三个选项，请全班举手投票（“选A的小朋友举手！”），再点卡片揭晓。答案：①C 神经网络（像会思考的渔网）②A 成千上万张 ③B AlphaGo（2016年；注意区分：深蓝赢的是国际象棋）。全班选对就集体封“AI小博士”，发贴纸/鼓掌。约2分钟；时间紧就直接点卡揭晓，不投票。">
+  <span class="tag">🎯 小游戏时间 · ③</span>
+  <h1 class="title" style="font-size:52px">快问快答：谁是AI小博士？</h1>
+  <div class="flip-grid">
+    <div class="flipcard pop" style="height:320px"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji" style="font-size:44px">🧠</div><div class="fc-name">AI的“大脑”叫什么？</div><div class="fc-opts"><div>A. 超级电池 🔋</div><div>B. 魔法水晶球 🔮</div><div>C. 神经网络 🕸️</div></div><div class="fc-ask">举手投票后点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ C. 神经网络</div>像一张<b>会思考的渔网</b>，消息钻来钻去，答案就出来啦</div>
+    </div></div>
+    <div class="flipcard pop" style="height:320px;animation-delay:.12s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji" style="font-size:44px">🐱</div><div class="fc-name">AI认猫，要看多少张照片？</div><div class="fc-opts"><div>A. 成千上万张 📚</div><div>B. 3张就够啦 ✌️</div><div>C. 一张都不用 ☝️</div></div><div class="fc-ask">举手投票后点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ A. 成千上万张</div>看得越多，猜得越准——<b>多练习</b>才聪明！</div>
+    </div></div>
+    <div class="flipcard pop" style="height:320px;animation-delay:.24s"><div class="fc-inner">
+      <div class="fc-front"><div class="fc-emoji" style="font-size:44px">🏆</div><div class="fc-name">谁赢了围棋世界冠军？</div><div class="fc-opts"><div>A. 深蓝 ♟️</div><div>B. AlphaGo 🤖</div><div>C. 奥特曼 🦸</div></div><div class="fc-ask">举手投票后点我揭晓</div></div>
+      <div class="fc-back yes"><div class="verdict">✅ B. AlphaGo</div>2016年4:1赢了李世石；<b>深蓝</b>赢的是国际象棋，别搞混啦！</div>
+    </div></div>
+  </div>
+  <div class="quiz-tip">💡 三题都选对？全班一起当<b style="color:#E1507A">「AI小博士」</b>！👏</div>
+</section>
+
+<!-- 23 视频时间①：宇树功夫机器人（本地视频直接播放） -->
+<section class="slide s-p3" data-note="视频①：宇树官方《宇树春晚机器人，细节补充大放送》——2026马年春晚《武BOT》官方回顾（几十台G1全自主集群武术表演，H2身披大圣重甲首秀）。视频已内置在课件里，本地直接播放、不需要联网，全长1分41秒正好放完。看完补一句：2025年它们还只在春晚上扭秧歌，今年（2026）马年春晚来了5家机器人公司，都会打中国功夫了——一年比一年聪明！备用视频：科普动画《看大片·前沿科技动画》第1集（BV1wNL9zCEfy）。">
+  <span class="tag">🎬 视频时间</span>
+  <h1 class="title" style="font-size:52px">看！机器人也会中国功夫</h1>
+  <div class="video-shell">
+    <video src="assets/unitree_kungfu.mp4" controls playsinline preload="auto"></video>
+    <button class="video-btn" style="display:none">▶ 点我播放</button>
+  </div>
+  <div class="video-link">2026年央视春晚《武BOT》· 宇树官方回顾：G1集群武术+H2首秀（全长1分41秒）· 来源：宇树官方 / 哔哩哔哩 BV1UbZMBmE4p</div>
+</section>
+
+<!-- 24 未来展望 -->
+<section class="slide s-p3" data-note="讲：未来的AI会是AI医生（帮医生看片子，早早发现病菌）、AI老师（给每个小朋友讲专属故事）、无人驾驶（汽车自己认路送你上学）、AI救援员（火灾地震时，机器人冲进人进不去的危险地方救人）。投票互动：逐项请小朋友举手投票“你最想要哪个AI朋友”，全班一起数票数，宣布“班级人气王”；再请2-3个小朋友说说“你希望AI帮你做什么”。（约3分钟）">
+  <span class="kicker">AI的未来</span>
+  <h1 class="title" style="font-size:52px">未来的AI，会帮我们做什么？🔮</h1>
+  <div class="flip-grid" style="grid-template-columns:repeat(2,1fr)">
+    <div class="think-item pop" style="animation-delay:.05s"><span class="te">🏥</span><div>AI医生<div style="font-size:22px;color:#7B8AC0;font-weight:700">帮医生看片子，早早发现病菌</div></div></div>
+    <div class="think-item pop" style="animation-delay:.15s"><span class="te">👩‍🏫</span><div>AI老师<div style="font-size:22px;color:#7B8AC0;font-weight:700">给每个小朋友讲“专属故事”</div></div></div>
+    <div class="think-item pop" style="animation-delay:.25s"><span class="te">🚗</span><div>无人驾驶<div style="font-size:22px;color:#7B8AC0;font-weight:700">汽车自己认路，送你上学</div></div></div>
+    <div class="think-item pop" style="animation-delay:.35s"><span class="te">🚒</span><div>AI救援员<div style="font-size:22px;color:#7B8AC0;font-weight:700">火灾地震时，冲进危险地方救人</div></div></div>
+  </div>
+  <div class="qbubble pop" style="animation-delay:.45s">🗳️ 举手投票：你最想要哪个AI朋友？看看谁是“人气王”！</div>
+</section>
+
+<!-- 25 视频时间②：Figure AI做家务（本地视频直接播放） -->
+<section class="slide s-p3" data-note="视频②：Figure AI机器人走进30个陌生家庭做家务——铺床、叠毛巾、收拾客厅，全长24秒。讲解：它要会“看”（认出枕头、毛巾在哪里）、会“想”（先做什么、后做什么）、还要“轻手轻脚”（不碰坏东西）——这就是科学家说的“具身智能”：AI住进了机器人的身体里！提问互动：如果它来到你家，你最想让它帮你做什么家务？（约1.5分钟）">
+  <span class="tag">🎬 视频时间 · ②</span>
+  <h1 class="title" style="font-size:52px">看！机器人已经会做家务了 🏠</h1>
+  <div class="video-shell">
+    <video src="assets/figure_housework.mp4" controls playsinline preload="auto"></video>
+    <button class="video-btn" style="display:none">▶ 点我播放</button>
+  </div>
+  <div class="video-link">Figure AI机器人走进30个陌生家庭：铺床、叠毛巾、打扫客厅 · 视频时长24秒</div>
+</section>
+
+<!-- 26 畅想互动 -->
+<section class="slide s-p3" data-note="先热身提问：“机器人身上藏着哪些今天学过的AI本领？”（摄像头=会“看”的眼睛、麦克风=会“听”的耳朵、芯片=会“想”的AI大脑）。然后大讨论：如果你有一个机器人朋友，你最想让它做什么？为什么？有什么事情你不希望它替你做？请3-4个小朋友发言，每个回答追问一句“为什么呀？”，引导他们发现：AI做不了的（爱、友谊、想象），恰恰最重要。时间充裕可加码：全班起立学机器人走路10秒。（约3分钟）">
+  <span class="tag">🙋 开动小脑筋</span>
+  <h1 class="title" style="font-size:52px">如果你有一个机器人朋友……</h1>
+  <div class="ask-grid">
+    <div class="ask-card pop" style="animation-delay:.1s">
+      <div class="ask-emoji">🤖💭</div>
+      <div class="ask-q">你最想让它<b>做什么</b>？</div>
+      <div class="ask-sub">说一说为什么～</div>
+    </div>
+    <div class="ask-card pop" style="animation-delay:.25s">
+      <div class="ask-emoji">🙅✋</div>
+      <div class="ask-q">哪些事，<b>不希望</b>它替你做？</div>
+      <div class="ask-sub">哪些事必须自己来？</div>
+    </div>
+    <div class="ask-card pop" style="animation-delay:.4s">
+      <div class="ask-emoji">💝🌟</div>
+      <div class="ask-q">AI做不了的事，<br>是不是<b>最重要的事</b>？</div>
+      <div class="ask-sub">爱、友谊、想象力……</div>
+    </div>
+  </div>
+</section>
+
+<!-- 27 总结 -->
+<section class="slide s-end" data-note="总结：带全班一起齐读三个小秘密，加深记忆。①AI就在身边（会看、会听、会玩、会猜）；②AI不是万能的（会犯错、要检查、不能替你思考）；③AI靠学习变聪明，未来的AI等你们来创造！（约2分钟）">
+  <span class="deco" style="left:8%;top:10%;font-size:54px">⭐</span>
+  <span class="deco" style="right:10%;bottom:16%;font-size:58px;animation-delay:1.2s">🌟</span>
+  <div class="section-wrap">
+    <h1 class="title pop" style="text-align:center">今天带回家的三个小秘密 🌟</h1>
+    <div class="secret-grid">
+      <div class="secret-card pop" style="animation-delay:.15s">
+        <div class="secret-num">1</div>
+        <div class="secret-emoji">👀 👂 🎮 ❤️</div>
+        <div class="secret-title">AI就在身边</div>
+        <div class="secret-sub">会看 · 会听 · 会玩 · 会猜</div>
+      </div>
+      <div class="secret-card pop" style="animation-delay:.3s">
+        <div class="secret-num">2</div>
+        <div class="secret-emoji">🙅 🔍 🧠</div>
+        <div class="secret-title">AI不是万能的</div>
+        <div class="secret-sub">会犯错 · 要检查 ·<br>不能替你思考</div>
+      </div>
+      <div class="secret-card pop" style="animation-delay:.45s">
+        <div class="secret-num">3</div>
+        <div class="secret-emoji">📚 🚀 🌟</div>
+        <div class="secret-title">AI靠学习变聪明</div>
+        <div class="secret-sub">未来的AI，<br>等你们来创造！</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 28 谢谢 -->
+<section class="slide s-end" data-note="结束+Q&A。小彩蛋可以当场揭秘：这份课件也是AI帮忙一起做的——AI已经能帮大人干活了，但创意和决定都是人做的。备用问题：AI会不会统治世界？——不会。AI没有自己的想法和愿望，它只是按学习到的规律工作，就像计算器不会想“统治世界”一样。真正决定未来的，是创造和使用AI的人——也就是你们！">
+  <span class="deco" style="left:10%;top:14%;font-size:56px">🎉</span>
+  <span class="deco" style="right:12%;top:20%;font-size:52px;animation-delay:.8s">🎊</span>
+  <span class="deco" style="left:16%;bottom:16%;font-size:50px;animation-delay:1.6s">🎈</span>
+  <div class="cover-wrap">
+    <div class="emoji-hero pop">👋</div>
+    <div class="cover-title pop" style="animation-delay:.15s;font-size:84px">谢谢大家！</div>
+    <div class="cover-sub pop" style="animation-delay:.3s">分享人：郭仕万爸爸 · 提问时间到，开动你们的小脑筋吧～</div>
+    <div class="cover-badge pop" style="animation-delay:.4s;font-size:22px;background:rgba(255,209,102,.25);border:2px solid #FFD166">✨ 小彩蛋：这份PPT课件，也是AI帮忙一起做的哦！</div>
+  </div>
+</section>
+
+<!-- 底部UI -->
+<div id="ui">
+  <span id="pager">1 / 28</span>
+  <span id="hint">← → 或 点空白处翻页（部分页先出左图、再点一次出右图）· 点卡片揭晓答案 · N 讲稿备注 · F 全屏</span>
+  <div class="navbtns"><button id="prevBtn" title="上一页">‹</button><button id="nextBtn" title="下一页">›</button></div>
+  <div id="progress"><div id="bar"></div></div>
+</div>
+<div id="noteBox"></div>
+
+</div>
+<div id="touchNav"><button id="tPrev" title="上一页">‹</button><button id="tNext" title="下一页">›</button></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const deck=document.getElementById('deck');
+const bar=document.getElementById('bar');
+const pager=document.getElementById('pager');
+const noteBox=document.getElementById('noteBox');
+let cur=0, notesOn=false;
+
+function scale(){
+  const s=Math.min(window.innerWidth/1280, window.innerHeight/720);
+  deck.style.transform=`translate(-50%,-50%) scale(${s})`;
+}
+window.addEventListener('resize',scale);
+scale();
+
+/* 视频控制：进入视频页自动播放（有声），离开即暂停并归零 */
+function syncVideos(){
+  slides.forEach((s,idx)=>{
+    const v=s.querySelector('video');
+    if(!v)return;
+    const btn=s.querySelector('.video-btn');
+    if(idx===cur){
+      if(btn)btn.style.display='none';
+      const p=v.play();
+      if(p&&p.catch)p.catch(()=>{if(btn)btn.style.display='block'});
+    }else{
+      v.pause();
+      try{v.currentTime=0}catch(e){}
+    }
+  });
+}
+
+function show(i){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,idx)=>{
+    s.classList.toggle('active',idx===cur);
+    if(idx===cur&&s.classList.contains('stepped'))s.classList.remove('revealed');
+  });
+  bar.style.width=((cur+1)/slides.length*100)+'%';
+  pager.textContent=(cur+1)+' / '+slides.length;
+  const n=slides[cur].getAttribute('data-note')||'';
+  noteBox.innerHTML='<b>讲稿备注：</b>'+n;
+  syncVideos();
+}
+/* 分步揭晓：stepped 页面先出左图，再一次“下一页”才出右侧答案；后退同理 */
+function next(){
+  const s=slides[cur];
+  if(s.classList.contains('stepped')&&!s.classList.contains('revealed')){s.classList.add('revealed');return}
+  show(cur+1)
+}
+function prev(){
+  const s=slides[cur];
+  if(s.classList.contains('stepped')&&s.classList.contains('revealed')){s.classList.remove('revealed');return}
+  show(cur-1)
+}
+
+document.getElementById('nextBtn').onclick=e=>{e.stopPropagation();next()};
+document.getElementById('prevBtn').onclick=e=>{e.stopPropagation();prev()};
+
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next()}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}
+  else if(e.key==='Home'){show(0)}
+  else if(e.key==='End'){show(slides.length-1)}
+  else if(e.key==='f'||e.key==='F'){
+    if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}
+    else{document.exitFullscreen()}
+  }
+  else if(e.key==='n'||e.key==='N'){
+    notesOn=!notesOn;noteBox.style.display=notesOn?'block':'none';
+    if(notesOn){const n=slides[cur].getAttribute('data-note')||'';noteBox.innerHTML='<b>讲稿备注：</b>'+n}
+  }
+});
+/* 点击空白处翻页：点任意空白 → 下一步/下一页；点屏幕左边缘 → 上一步/上一页（卡片、按钮等互动元素不翻页） */
+deck.addEventListener('click',e=>{
+  const r=deck.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width;
+  if(x<0.07){prev()}else{next()}
+});
+/* 触屏滑动翻页（手机/平板：左右滑动） */
+let tsX=0,tsY=0;
+deck.addEventListener('touchstart',e=>{tsX=e.changedTouches[0].clientX;tsY=e.changedTouches[0].clientY},{passive:true});
+deck.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tsX,dy=e.changedTouches[0].clientY-tsY;
+  if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.4){dx<0?next():prev()}
+},{passive:true});
+document.getElementById('tPrev').onclick=e=>{e.stopPropagation();prev()};
+document.getElementById('tNext').onclick=e=>{e.stopPropagation();next()};
+if(window.matchMedia('(pointer:coarse)').matches){
+  document.getElementById('hint').textContent='👆 左右滑动翻页 · 也可以点屏幕两侧的大箭头';
+}
+/* 翻牌 */
+document.querySelectorAll('.flipcard').forEach(c=>{
+  c.addEventListener('click',e=>{c.classList.toggle('flipped');e.stopPropagation()});
+});
+/* 视频兜底播放按钮（自动播放被浏览器拦截时出现） */
+document.querySelectorAll('.video-btn').forEach(b=>{
+  b.addEventListener('click',e=>{
+    e.stopPropagation();
+    const v=b.parentElement.querySelector('video');
+    b.style.display='none';
+    if(v){const p=v.play();if(p&&p.catch)p.catch(()=>{b.style.display='block'})}
+  });
+});
+show(0);
+</script>
+</body>
+</html>
